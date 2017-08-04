@@ -1,5 +1,7 @@
 "use strict";
 
+// X-ClientSession-Id need to find this
+
 var page = require('webpage').create();
 // Set Chrome's user agent
 page.settings.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36";
@@ -46,9 +48,7 @@ var isUsernameFieldVisible = function () {
 };
 
 
-page.onResourceReceived = function(response) {
-  console.log(JSON.stringify(response.headers.find(function(x){return x.name==="Set-Cookie";})));
-};
+
 // page.onResourceReceived = function(response) {
 //   var cookies = response.headers.find(x => x.name == "cookie");
 //   if (cookies) {
@@ -69,6 +69,18 @@ page.onResourceReceived = function(response) {
 var thenTypeCredentials = function () {
   console.log("Will type credentials");
   page.render("trololol3.png");
+  page.onResourceReceived = function(response) {
+    var aCookies = page.cookies;
+    var sCookie = aCookies.reduce(function(sAllCookies, oCookie){
+      if (sAllCookies) {
+        return sAllCookies + "; " + oCookie.name + "=" + oCookie.value;
+      }
+      return oCookie.name + "=" + oCookie.value;
+    }, false);
+    console.log(sCookie);
+   // console.log(JSON.stringify(response.headers.filter(x=>x.name==="X-ClientSession-Id")));
+    //phantom.exit();
+  };
   page.evaluate(function() {
     console.log("Inserting credentials");
     document.getElementById("j_username").value = "fixme";
